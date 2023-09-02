@@ -45,20 +45,20 @@ const validate = async (req, res, next) => {
     }
 
 
-    
+
 }
 
 
 const authenticateToken = (req, res, next) => {
     const token = req.header('Authorization')?.replace('Bearer ', '');
     if (!token) return res.sendStatus(401);
-  
+
     try {
-      const decoded = jwt.verify(token, 'your-secret-key');
-      req.user = decoded;
-      next();
+        const decoded = jwt.verify(token, 'your-secret-key');
+        req.user = decoded;
+        next();
     } catch (error) {
-      res.sendStatus(403);
+        res.sendStatus(403);
     }
-  };
-module.exports = { hashPassword, hashCompare, createToken, validate,authenticateToken }
+};
+module.exports = { hashPassword, hashCompare, createToken, validate, authenticateToken }

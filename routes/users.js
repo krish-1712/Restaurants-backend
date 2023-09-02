@@ -6,21 +6,15 @@ const { foodModel } = require('../Schemas/FoodSchemas');
 const { restaurantModel } = require('../Schemas/RestaurantSchemas');
 const mongoose = require('mongoose');
 const { userModel } = require('../Schemas/UserSchemas');
-const { hashPassword, hashCompare, createToken, validate,authenticateToken } = require('../Common/auth')
+const { hashPassword, hashCompare, createToken, validate, authenticateToken } = require('../Common/auth')
 const nodemailer = require('nodemailer')
 const jwt = require('jsonwebtoken');
 const { countModel } = require('../Schemas/CountSchemas');
 
 
-
-
-
 mongoose.connect(dbUrl)
 
-// /* GET users listing. */
-// router.get('/', function(req, res, next) {
-//   res.send('respond with a resource');
-// });
+
 
 
 /* GET ALL CART. */
@@ -329,6 +323,7 @@ router.post("/createRestaurant", async function (req, res, next) {
 
 
 
+/* SIGNUP. */
 router.post('/signup', async (req, res) => {
   try {
     let user = await userModel.findOne({ email: req.body.email })
@@ -367,49 +362,51 @@ router.post('/signup', async (req, res) => {
 
 
 
+/* LOGIN. */
 router.post('/login', async (req, res) => {
   try {
-      const { email, password } = req.body;
+    const { email, password } = req.body;
 
-      const user = await userModel.findOne({ email });
-      console.log(user)
+    const user = await userModel.findOne({ email });
+    console.log(user)
 
-      if (user) {
-          const passwordMatches = await hashCompare(password, user.password);
+    if (user) {
+      const passwordMatches = await hashCompare(password, user.password);
 
-          if (passwordMatches) {
-              const token = await createToken({
-                  email: user.email,
-                  userId: user._id
-              });
-              console.log(token)
-              return res.status(200).send({
-                  message: 'User Login Successfully!',
-                  token,
-                  userId: user._id,
-                  role: user.role // Include the user's role in the response
-              });
-          } else {
-              return res.status(401).send({
-                  message: 'Invalid Credentials'
-              });
-          }
+      if (passwordMatches) {
+        const token = await createToken({
+          email: user.email,
+          userId: user._id
+        });
+        console.log(token)
+        return res.status(200).send({
+          message: 'User Login Successfully!',
+          token,
+          userId: user._id,
+          role: user.role
+        });
       } else {
-          return res.status(400).send({
-              message: 'User Does Not Exist!'
-          });
+        return res.status(401).send({
+          message: 'Invalid Credentials'
+        });
       }
-  } catch (error) {
-      console.error('Login Error:', error);
-      return res.status(500).send({
-          message: 'Internal Server Error',
-          error
+    } else {
+      return res.status(400).send({
+        message: 'User Does Not Exist!'
       });
+    }
+  } catch (error) {
+    console.error('Login Error:', error);
+    return res.status(500).send({
+      message: 'Internal Server Error',
+      error
+    });
   }
 });
 
 
 
+/* FORGOT. */
 router.post("/reset", async (req, res) => {
   try {
     let user = await userModel.findOne({ email: req.body.values.email })
@@ -435,7 +432,7 @@ router.post("/reset", async (req, res) => {
     const queryString = queryParams.toString();
     let details = {
       from: "greenpalace1712@gmail.com",
-      to: "krishkannan1712@gmail.com",
+      to: user.email,
       subject: "Hello ✔",
       html: `
         <p>Hello,</p>
@@ -458,6 +455,8 @@ router.post("/reset", async (req, res) => {
 });
 
 
+
+/* RESET. */
 router.post('/password-reset', async (req, res, next) => {
 
 
@@ -495,156 +494,16 @@ router.post('/password-reset', async (req, res, next) => {
 
 
 
-// router.get('/get-cart/:userid', async (req, res) => {
-//   try {
-//     const userid = req.params.userid;
-//     console.log(userid)
-//     const cart = await countModel.findOne({ userid });
-//     console.log(cart  )
-
-//     if (!cart) {
-//       return res.status(404).json({ message: 'Cart not found' });
-//     }
-
-//     res.json(cart);
-//   } catch (error) {
-//     res.status(500).json({ error: 'An error occurred' });
-//   }
-// });
-
-// router.put('/add-to-cart/:userid/:itemId', async (req, res) => {
-//   console.log("gu")
-//   try {
-//     const userid = req.params.userid;
-//     console.log(userid)
-//     const itemId = req.params.itemId;
-//     console.log(itemId)
-
-//     // Find the cart for the user
-//     const cart = await countModel.findOne({ userid });
-//     console.log(cart)
-
-//     if (!cart) {
-//       return res.status(404).json({ message: 'Cart not found' });
-//     }
-
-//     // Find the item in the cart's items array
-//     const item = cart.items.find(item => item.itemId.toString() === itemId);
-
-//     if (!item) {
-//       return res.status(404).json({ message: 'Item not found in the cart' });
-//     }
-
-//     // Increase the item count
-//     item.count++;
-
-//     // Save the updated cart
-//     await cart.save();
-
-//     res.json(cart);
-//   } catch (error) {
-//     res.status(500).json({ error: 'An error occurred' });
-//   }
-// });
 
 
-
-
-// router.put('/add-to-cart/:userid/:itemId', async (req, res) => {
-//   try {
-//     const userId = req.params.userid;
-//     console.log('User ID:', userId);
-    
-//     const itemId = req.params.itemId;
-//     console.log('Item ID:', itemId);
-
-//     // Step 2: Fetch the user's cart
-//     const user = await countModel.findOne({ userId }).populate('items.itemId');
-//     console.log('User:', user);
-
-//     // Step 3: Handle user not found
-//     if (!user) {
-//       console.log('User not found');
-//       return res.status(404).json({ message: 'User not found' });
-//     }
-
-//     // Step 4: Find the cart item
-//     const cartItem = user.items.find(item => item.itemId._id.toString() === itemId);
-
-//     // Step 5: Handle item not found in cart
-//     if (!cartItem) {
-//       console.log('Item not found in the cart');
-//       return res.status(404).json({ message: 'Item not found in the cart' });
-//     }
-
-//     // Step 6: Update cart item count
-//     cartItem.count++;
-//     console.log('Updated cart item count:', cartItem.count);
-
-//     // Step 7: Save the user's cart
-//     await user.save();
-//     console.log('User saved:', user);
-
-//     // Step 8: Respond with updated cart items
-//     res.json(user.items);
-//   } catch (error) {
-//     // Step 9: Handle errors
-//     console.error('An error occurred:', error);
-//     res.status(500).json({ error: 'An error occurred' });
-//   }
-// });
-
-
-
-// router.put('/add-to-cart/:userId/:itemId',async(req,res)=>{
-//   try {
-//     const userId = req.params.userId;
-//     const itemId = req.params.itemId;
-
-//     console.log('User ID:', userId);
-//     console.log('Item ID:', itemId);
-
-
-//     // Check if item exists
-//     const item = await itemModel.findById(itemId);
-//     if (!item) {
-//       return res.status(404).json({ message: 'Item not found' });
-//     }
-
-//     // Add item to cart
-//     let cart = await countModel.findOne({ userId });
-//     if (!cart) {
-//       cart = new countModel({ userId, items: [] });
-//     }
-
-//     const existingItem = cart.items.find(item => item.itemId.toString() === itemId);
-//     if (existingItem) {
-//       existingItem.quantity++;
-//     } else {
-//       cart.items.push({ itemId, quantity: 1 });
-//     }
-
-//     await cart.save();
-//     res.status(200).json(cart);
-//   } catch (error) {
-//     console.error('Error adding to cart:', error);
-//     res.status(500).json({ message: 'Internal server error' });
-//   }
-// });
-
-
-
-
-
+/* CREATE CART. */
 router.post('/add-to-cart', async (req, res) => {
   try {
-    // Parse data from the request body
+
     const { userId, itemId, name, count } = req.body;
 
-    // Create a new cart item
     const newItem = new countModel({ userId, itemId, name, count });
 
-    // Save the item to the database
     const savedItem = await newItem.save();
 
     res.json(savedItem);
@@ -658,16 +517,14 @@ router.post('/add-to-cart', async (req, res) => {
 
 
 
-
-
+/* GET ALL CART. */
 router.get('/get-cart/:userId', async (req, res) => {
   console.log("jyg");
   try {
     const userId = req.params.userId;
     console.log(userId);
 
-    // Find all cart items for the specified user
-    const cartItems = await countModel.find({ userId }); // Replace countModel with CartItem
+    const cartItems = await countModel.find({ userId });
 
     res.json(cartItems);
   } catch (error) {
