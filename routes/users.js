@@ -11,8 +11,8 @@ const nodemailer = require('nodemailer')
 const jwt = require('jsonwebtoken');
 const { countModel } = require('../Schemas/CountSchemas');
 
-
 mongoose.connect(dbUrl)
+  .then(() => console.log('Connected!'));
 
 
 
