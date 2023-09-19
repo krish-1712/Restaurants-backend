@@ -457,27 +457,62 @@ router.post("/reset", async (req, res) => {
 
 
 /* RESET. */
-router.post('/password-reset', async (req, res, next) => {
+// router.post('/password-reset', async (req, res, next) => {
+
+
+//   try {
+//     const users = await userModel.findOne({ email: req.body.email });
+
+//     const token = req.body.token;
+
+//     let hashedPassword = await hashPassword(req.body.password)
+
+
+//     let decodedToken = jwt.verify(token, process.env.secretkey)
+
+//     console.log("decoded : " + decodedToken)
+//     const userId = decodedToken.userId;
+
+//     const filter = { email: userId };
+//     const update = { password: hashedPassword };
+
+//     const doc = await userModel.findOneAndUpdate(filter, update);
+
+
+
+//     res.status(200).send({
+//       message: "Password Reset successfully",
+//     })
+
+//   } catch (error) {
+//     res.status(400).send({
+//       message: "Some Error Occured",
+//     })
+//   }
+// })
+router.post('/password', async (req, res) => {
 
 
   try {
     const users = await userModel.findOne({ email: req.body.email });
-
+    console.log(users)
+    console.log("reset : " + req.body.password);
     const token = req.body.token;
-
+    console.log(token)
     let hashedPassword = await hashPassword(req.body.password)
-
+    console.log(hashedPassword);
 
     let decodedToken = jwt.verify(token, process.env.secretkey)
 
     console.log("decoded : " + decodedToken)
     const userId = decodedToken.userId;
-
+    console.log(userId)
     const filter = { email: userId };
     const update = { password: hashedPassword };
 
     const doc = await userModel.findOneAndUpdate(filter, update);
-
+    console.log("test");
+    console.log(doc);
 
 
     res.status(200).send({
@@ -490,7 +525,6 @@ router.post('/password-reset', async (req, res, next) => {
     })
   }
 })
-
 
 
 
