@@ -457,39 +457,6 @@ router.post("/reset", async (req, res) => {
 
 
 /* RESET. */
-// router.post('/password-reset', async (req, res, next) => {
-
-
-//   try {
-//     const users = await userModel.findOne({ email: req.body.email });
-
-//     const token = req.body.token;
-
-//     let hashedPassword = await hashPassword(req.body.password)
-
-
-//     let decodedToken = jwt.verify(token, process.env.secretkey)
-
-//     console.log("decoded : " + decodedToken)
-//     const userId = decodedToken.userId;
-
-//     const filter = { email: userId };
-//     const update = { password: hashedPassword };
-
-//     const doc = await userModel.findOneAndUpdate(filter, update);
-
-
-
-//     res.status(200).send({
-//       message: "Password Reset successfully",
-//     })
-
-//   } catch (error) {
-//     res.status(400).send({
-//       message: "Some Error Occured",
-//     })
-//   }
-// })
 router.post('/password', async (req, res) => {
 
 
